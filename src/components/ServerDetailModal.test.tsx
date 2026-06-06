@@ -195,7 +195,7 @@ describe('ServerDetailModal', () => {
       />
     );
 
-    const closeButton = screen.getByRole('button');
+    const closeButton = screen.getByTestId('modal-close-button');
     fireEvent.click(closeButton);
 
     expect(onClose).toHaveBeenCalledTimes(1);

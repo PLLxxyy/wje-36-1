@@ -20,12 +20,13 @@ describe('useServerData', () => {
     expect(result.current.servers[7].hostname).toBe('worker-01');
   });
 
-  it('should initialize empty history arrays', () => {
+  it('should initialize empty history arrays before first tick', () => {
     const { result } = renderHook(() => useServerData());
-    expect(result.current.cpuHistory).toHaveLength(8);
-    expect(result.current.memoryHistory).toHaveLength(8);
-    expect(result.current.diskHistory).toHaveLength(8);
-    expect(result.current.serverNetworkHistory).toHaveLength(8);
+    expect(result.current.cpuHistory).toHaveLength(0);
+    expect(result.current.memoryHistory).toHaveLength(0);
+    expect(result.current.diskHistory).toHaveLength(0);
+    expect(result.current.serverNetworkHistory).toHaveLength(0);
+    expect(result.current.networkTraffic).toHaveLength(0);
   });
 
   it('should populate history data with initial 30 points on first tick', () => {
@@ -34,6 +35,11 @@ describe('useServerData', () => {
     act(() => {
       vi.advanceTimersByTime(3000);
     });
+
+    expect(result.current.cpuHistory).toHaveLength(8);
+    expect(result.current.memoryHistory).toHaveLength(8);
+    expect(result.current.diskHistory).toHaveLength(8);
+    expect(result.current.serverNetworkHistory).toHaveLength(8);
 
     result.current.cpuHistory.forEach((history) => {
       expect(history.data).toHaveLength(30);
@@ -54,6 +60,8 @@ describe('useServerData', () => {
       expect(history.data[0].inbound).toBeDefined();
       expect(history.data[0].outbound).toBeDefined();
     });
+
+    expect(result.current.networkTraffic).toHaveLength(30);
   });
 
   it('should append new data points and keep max 30 points after multiple ticks', () => {

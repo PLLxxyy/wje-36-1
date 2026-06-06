@@ -159,6 +159,7 @@ export default function ServerDetailModal({
             <StatusBadge status={server.status} />
           </div>
           <button
+            data-testid="modal-close-button"
             onClick={onClose}
             className="p-2 rounded-lg text-gray-400 hover:text-gray-200 hover:bg-gray-800 transition-colors"
           >

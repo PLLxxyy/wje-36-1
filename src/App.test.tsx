@@ -101,12 +101,8 @@ describe('App Integration', () => {
 
     expect(screen.queryByText('运行时间')).not.toBeInTheDocument();
 
-    const web01Card = screen.getByText('web-01').closest('[class*="rounded-xl"]');
-    expect(web01Card).toBeInTheDocument();
-
-    if (web01Card) {
-      fireEvent.click(web01Card);
-    }
+    const web01Card = screen.getByTestId('server-card-srv-0');
+    fireEvent.click(web01Card);
 
     expect(screen.getByText('运行时间')).toBeInTheDocument();
     expect(screen.getByText('5天12小时30分')).toBeInTheDocument();
@@ -116,12 +112,8 @@ describe('App Integration', () => {
   it('should display correct server data in modal for warning server', () => {
     render(<App />);
 
-    const db01Card = screen.getByText('db-01').closest('[class*="rounded-xl"]');
-    expect(db01Card).toBeInTheDocument();
-
-    if (db01Card) {
-      fireEvent.click(db01Card);
-    }
+    const db01Card = screen.getByTestId('server-card-srv-1');
+    fireEvent.click(db01Card);
 
     expect(screen.getByText('db-01')).toBeInTheDocument();
     expect(screen.getByText('告警')).toBeInTheDocument();
@@ -133,10 +125,8 @@ describe('App Integration', () => {
   it('should render four charts in the detail modal', () => {
     const { container } = render(<App />);
 
-    const web01Card = screen.getByText('web-01').closest('[class*="rounded-xl"]');
-    if (web01Card) {
-      fireEvent.click(web01Card);
-    }
+    const web01Card = screen.getByTestId('server-card-srv-0');
+    fireEvent.click(web01Card);
 
     const charts = container.querySelectorAll('[data-testid="echarts-mock"]');
     const chartTitles = Array.from(charts).map((c) => c.getAttribute('data-chart-title'));
@@ -150,14 +140,12 @@ describe('App Integration', () => {
   it('should close modal and return to overview when clicking close button', () => {
     render(<App />);
 
-    const web01Card = screen.getByText('web-01').closest('[class*="rounded-xl"]');
-    if (web01Card) {
-      fireEvent.click(web01Card);
-    }
+    const web01Card = screen.getByTestId('server-card-srv-0');
+    fireEvent.click(web01Card);
 
     expect(screen.getByText('运行时间')).toBeInTheDocument();
 
-    const closeButton = screen.getByRole('button');
+    const closeButton = screen.getByTestId('modal-close-button');
     fireEvent.click(closeButton);
 
     expect(screen.queryByText('运行时间')).not.toBeInTheDocument();
@@ -173,12 +161,10 @@ describe('App Integration', () => {
     const memoryGaugeTitle = screen.getByText('内存使用率');
     const diskUsageTitle = screen.getByText('磁盘使用率');
 
-    const web01Card = screen.getByText('web-01').closest('[class*="rounded-xl"]');
-    if (web01Card) {
-      fireEvent.click(web01Card);
-    }
+    const web01Card = screen.getByTestId('server-card-srv-0');
+    fireEvent.click(web01Card);
 
-    const closeButton = screen.getByRole('button');
+    const closeButton = screen.getByTestId('modal-close-button');
     fireEvent.click(closeButton);
 
     expect(cpuChartTitle).toBeInTheDocument();
@@ -197,19 +183,15 @@ describe('App Integration', () => {
   it('should open modal for different servers independently', () => {
     render(<App />);
 
-    const web01Card = screen.getByText('web-01').closest('[class*="rounded-xl"]');
-    if (web01Card) {
-      fireEvent.click(web01Card);
-    }
+    const web01Card = screen.getByTestId('server-card-srv-0');
+    fireEvent.click(web01Card);
     expect(screen.getByText('web-01')).toBeInTheDocument();
 
-    const closeButton = screen.getByRole('button');
+    const closeButton = screen.getByTestId('modal-close-button');
     fireEvent.click(closeButton);
 
-    const api01Card = screen.getByText('api-01').closest('[class*="rounded-xl"]');
-    if (api01Card) {
-      fireEvent.click(api01Card);
-    }
+    const api01Card = screen.getByTestId('server-card-srv-2');
+    fireEvent.click(api01Card);
 
     expect(screen.getByText('api-01')).toBeInTheDocument();
     expect(screen.getByText('55%')).toBeInTheDocument();
@@ -220,34 +202,28 @@ describe('App Integration', () => {
   it('should pass correct history data based on selected server', () => {
     const { container } = render(<App />);
 
-    const web01Card = screen.getByText('web-01').closest('[class*="rounded-xl"]');
-    if (web01Card) {
-      fireEvent.click(web01Card);
-    }
+    const web01Card = screen.getByTestId('server-card-srv-0');
+    fireEvent.click(web01Card);
 
     const charts = container.querySelectorAll('[data-testid="echarts-mock"]');
     expect(charts.length).toBeGreaterThanOrEqual(4);
 
-    const closeButton = screen.getByRole('button');
+    const closeButton = screen.getByTestId('modal-close-button');
     fireEvent.click(closeButton);
 
-    const db01Card = screen.getByText('db-01').closest('[class*="rounded-xl"]');
-    if (db01Card) {
-      fireEvent.click(db01Card);
-    }
+    const db01Card = screen.getByTestId('server-card-srv-1');
+    fireEvent.click(db01Card);
 
     const chartsAfter = container.querySelectorAll('[data-testid="echarts-mock"]');
     expect(chartsAfter.length).toBeGreaterThanOrEqual(4);
   });
 
   it('should have cursor pointer on server cards in overview', () => {
-    const { container } = render(<App />);
+    render(<App />);
 
-    const cards = container.querySelectorAll('[class*="rounded-xl"]');
-    const serverCards = Array.from(cards).filter((card) =>
-      card.className.includes('cursor-pointer')
-    );
-
-    expect(serverCards.length).toBeGreaterThan(0);
+    mockServers.forEach((srv) => {
+      const card = screen.getByTestId(`server-card-${srv.id}`);
+      expect(card.className).toContain('cursor-pointer');
+    });
   });
 });

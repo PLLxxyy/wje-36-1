@@ -26,6 +26,7 @@ export default function ServerCards({ servers, onCardClick }: Props) {
         return (
           <div
             key={srv.id}
+            data-testid={`server-card-${srv.id}`}
             onClick={() => onCardClick(srv)}
             className={`rounded-xl p-3 border transition-all duration-500 cursor-pointer ${
               isWarning

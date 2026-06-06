@@ -72,12 +72,8 @@ describe('ServerCards', () => {
     const onCardClick = vi.fn();
     render(<ServerCards servers={mockServers} onCardClick={onCardClick} />);
 
-    const web01Card = screen.getByText('web-01').closest('[class*="rounded-xl"]');
-    expect(web01Card).toBeInTheDocument();
-
-    if (web01Card) {
-      fireEvent.click(web01Card);
-    }
+    const web01Card = screen.getByTestId('server-card-srv-0');
+    fireEvent.click(web01Card);
 
     expect(onCardClick).toHaveBeenCalledTimes(1);
     expect(onCardClick).toHaveBeenCalledWith(mockServers[0]);
@@ -87,12 +83,8 @@ describe('ServerCards', () => {
     const onCardClick = vi.fn();
     render(<ServerCards servers={mockServers} onCardClick={onCardClick} />);
 
-    const db01Card = screen.getByText('db-01').closest('[class*="rounded-xl"]');
-    expect(db01Card).toBeInTheDocument();
-
-    if (db01Card) {
-      fireEvent.click(db01Card);
-    }
+    const db01Card = screen.getByTestId('server-card-srv-1');
+    fireEvent.click(db01Card);
 
     expect(onCardClick).toHaveBeenCalledTimes(1);
     expect(onCardClick).toHaveBeenCalledWith(mockServers[1]);
@@ -100,21 +92,29 @@ describe('ServerCards', () => {
 
   it('should have cursor pointer style on cards', () => {
     const onCardClick = vi.fn();
-    const { container } = render(<ServerCards servers={mockServers} onCardClick={onCardClick} />);
+    render(<ServerCards servers={mockServers} onCardClick={onCardClick} />);
 
-    const cards = container.querySelectorAll('[class*="rounded-xl"]');
-    expect(cards.length).toBe(3);
-    cards.forEach((card) => {
+    mockServers.forEach((srv) => {
+      const card = screen.getByTestId(`server-card-${srv.id}`);
       expect(card.className).toContain('cursor-pointer');
     });
   });
 
   it('should apply warning animation class to warning servers', () => {
     const onCardClick = vi.fn();
-    const { container } = render(<ServerCards servers={mockServers} onCardClick={onCardClick} />);
+    render(<ServerCards servers={mockServers} onCardClick={onCardClick} />);
 
-    const cards = container.querySelectorAll('[class*="rounded-xl"]');
-    expect(cards[1].className).toContain('animate-flash-red');
+    const warningCard = screen.getByTestId('server-card-srv-1');
+    expect(warningCard.className).toContain('animate-flash-red');
+  });
+
+  it('should render cards with correct data-testid', () => {
+    const onCardClick = vi.fn();
+    render(<ServerCards servers={mockServers} onCardClick={onCardClick} />);
+
+    expect(screen.getByTestId('server-card-srv-0')).toBeInTheDocument();
+    expect(screen.getByTestId('server-card-srv-1')).toBeInTheDocument();
+    expect(screen.getByTestId('server-card-srv-2')).toBeInTheDocument();
   });
 
   it('should not call onCardClick when not clicked', () => {
