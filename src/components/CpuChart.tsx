@@ -1,8 +1,8 @@
 import ReactECharts from 'echarts-for-react';
-import type { CpuHistory } from '../types';
+import type { MetricHistory } from '../types';
 
 interface Props {
-  data: CpuHistory[];
+  data: MetricHistory[];
   colors: string[];
 }
 

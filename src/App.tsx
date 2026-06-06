@@ -1,15 +1,32 @@
+import { useState, useCallback } from 'react';
 import CpuChart from './components/CpuChart';
 import MemoryGauge from './components/MemoryGauge';
 import DiskUsage from './components/DiskUsage';
 import NetworkChart from './components/NetworkChart';
 import ServerCards from './components/ServerCards';
+import ServerDetailModal from './components/ServerDetailModal';
 import { useServerData } from './hooks/useServerData';
 import { Server, Activity } from 'lucide-react';
+import type { ServerData } from './types';
 
 export default function App() {
-  const { servers, cpuHistory, networkTraffic, colors } = useServerData();
+  const { servers, cpuHistory, memoryHistory, diskHistory, serverNetworkHistory, networkTraffic, colors } = useServerData();
+  const [selectedServer, setSelectedServer] = useState<ServerData | null>(null);
   const onlineCount = servers.filter((s) => s.status !== 'offline').length;
   const warningCount = servers.filter((s) => s.status === 'warning').length;
+
+  const handleCardClick = useCallback((server: ServerData) => {
+    setSelectedServer(server);
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setSelectedServer(null);
+  }, []);
+
+  const selectedCpuData = selectedServer ? cpuHistory.find((h) => h.serverId === selectedServer.id) : undefined;
+  const selectedMemoryData = selectedServer ? memoryHistory.find((h) => h.serverId === selectedServer.id) : undefined;
+  const selectedDiskData = selectedServer ? diskHistory.find((h) => h.serverId === selectedServer.id) : undefined;
+  const selectedNetworkData = selectedServer ? serverNetworkHistory.find((h) => h.serverId === selectedServer.id) : undefined;
 
   return (
     <div className="w-screen h-screen bg-dashboard-bg text-gray-100 flex flex-col p-4 gap-4 overflow-hidden">
@@ -62,8 +79,18 @@ export default function App() {
 
       {/* Bottom: Server Cards */}
       <div className="shrink-0">
-        <ServerCards servers={servers} />
+        <ServerCards servers={servers} onCardClick={handleCardClick} />
       </div>
+
+      {/* Detail Modal */}
+      <ServerDetailModal
+        server={selectedServer}
+        cpuData={selectedCpuData}
+        memoryData={selectedMemoryData}
+        diskData={selectedDiskData}
+        networkData={selectedNetworkData}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 }

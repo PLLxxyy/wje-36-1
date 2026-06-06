@@ -3,6 +3,7 @@ import type { ServerData } from '../types';
 
 interface Props {
   servers: ServerData[];
+  onCardClick: (server: ServerData) => void;
 }
 
 function StatusBadge({ status }: { status: ServerData['status'] }) {
@@ -17,7 +18,7 @@ function StatusBadge({ status }: { status: ServerData['status'] }) {
   );
 }
 
-export default function ServerCards({ servers }: Props) {
+export default function ServerCards({ servers, onCardClick }: Props) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
       {servers.map((srv) => {
@@ -25,10 +26,11 @@ export default function ServerCards({ servers }: Props) {
         return (
           <div
             key={srv.id}
-            className={`rounded-xl p-3 border transition-all duration-500 ${
+            onClick={() => onCardClick(srv)}
+            className={`rounded-xl p-3 border transition-all duration-500 cursor-pointer ${
               isWarning
-                ? 'animate-flash-red border-red-500/50'
-                : 'bg-panel-bg border-gray-800 hover:border-gray-700'
+                ? 'animate-flash-red border-red-500/50 hover:border-red-400'
+                : 'bg-panel-bg border-gray-800 hover:border-gray-700 hover:bg-gray-800/50'
             }`}
           >
             <div className="flex items-center justify-between mb-2">

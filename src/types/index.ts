@@ -15,10 +15,20 @@ export interface TimeSeriesPoint {
   value: number;
 }
 
-export interface CpuHistory {
+export interface MetricHistory {
   serverId: string;
   serverName: string;
   data: TimeSeriesPoint[];
+}
+
+export interface NetworkHistory {
+  serverId: string;
+  serverName: string;
+  data: {
+    time: string;
+    inbound: number;
+    outbound: number;
+  }[];
 }
 
 export interface NetworkTraffic {

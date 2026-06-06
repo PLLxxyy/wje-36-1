@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { ServerData, CpuHistory, NetworkTraffic } from '../types';
+import type { ServerData, MetricHistory, NetworkHistory, NetworkTraffic } from '../types';
 import { getCurrentTimeLabel, formatUptime } from '../utils/helpers';
 
 const SERVER_NAMES = ['web-01', 'web-02', 'api-01', 'api-02', 'db-01', 'db-02', 'cache-01', 'worker-01'];
@@ -37,7 +37,10 @@ function updateServers(prev: ServerData[]): ServerData[] {
 
 export function useServerData() {
   const [servers, setServers] = useState<ServerData[]>(generateInitialServers);
-  const [cpuHistory, setCpuHistory] = useState<CpuHistory[]>([]);
+  const [cpuHistory, setCpuHistory] = useState<MetricHistory[]>([]);
+  const [memoryHistory, setMemoryHistory] = useState<MetricHistory[]>([]);
+  const [diskHistory, setDiskHistory] = useState<MetricHistory[]>([]);
+  const [serverNetworkHistory, setServerNetworkHistory] = useState<NetworkHistory[]>([]);
   const [networkTraffic, setNetworkTraffic] = useState<NetworkTraffic[]>([]);
 
   const tick = useCallback(() => {
@@ -46,9 +49,37 @@ export function useServerData() {
       const time = getCurrentTimeLabel();
 
       setCpuHistory((hist) => {
-        const updated = next.map((srv, i) => {
+        const updated = next.map((srv) => {
           const existing = hist.find((h) => h.serverId === srv.id);
           const data = existing ? [...existing.data, { time, value: srv.cpu }].slice(-30) : Array.from({ length: 30 }, (_, j) => ({ time: `${j}`, value: srv.cpu }));
+          return { serverId: srv.id, serverName: srv.hostname, data };
+        });
+        return updated;
+      });
+
+      setMemoryHistory((hist) => {
+        const updated = next.map((srv) => {
+          const existing = hist.find((h) => h.serverId === srv.id);
+          const data = existing ? [...existing.data, { time, value: Math.round(srv.memory) }].slice(-30) : Array.from({ length: 30 }, (_, j) => ({ time: `${j}`, value: Math.round(srv.memory) }));
+          return { serverId: srv.id, serverName: srv.hostname, data };
+        });
+        return updated;
+      });
+
+      setDiskHistory((hist) => {
+        const updated = next.map((srv) => {
+          const existing = hist.find((h) => h.serverId === srv.id);
+          const data = existing ? [...existing.data, { time, value: srv.disk }].slice(-30) : Array.from({ length: 30 }, (_, j) => ({ time: `${j}`, value: srv.disk }));
+          return { serverId: srv.id, serverName: srv.hostname, data };
+        });
+        return updated;
+      });
+
+      setServerNetworkHistory((hist) => {
+        const updated = next.map((srv) => {
+          const existing = hist.find((h) => h.serverId === srv.id);
+          const newPoint = { time, inbound: Math.round(srv.networkIn / 1024 / 1024), outbound: Math.round(srv.networkOut / 1024 / 1024) };
+          const data = existing ? [...existing.data, newPoint].slice(-30) : Array.from({ length: 30 }, (_, j) => ({ time: `${j}`, inbound: Math.round(srv.networkIn / 1024 / 1024), outbound: Math.round(srv.networkOut / 1024 / 1024) }));
           return { serverId: srv.id, serverName: srv.hostname, data };
         });
         return updated;
@@ -70,5 +101,5 @@ export function useServerData() {
     return () => clearInterval(interval);
   }, [tick]);
 
-  return { servers, cpuHistory, networkTraffic, colors: COLORS };
+  return { servers, cpuHistory, memoryHistory, diskHistory, serverNetworkHistory, networkTraffic, colors: COLORS };
 }
